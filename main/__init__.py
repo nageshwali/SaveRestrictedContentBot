@@ -1,37 +1,43 @@
+#Github.com/Vasusen-code
+
 from pyrogram import Client
+
+from telethon.sessions import StringSession
 from telethon.sync import TelegramClient
+
 from decouple import config
-import logging
+import logging, time, sys
 
-# Set up logging
-logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=logging.INFO)
+logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
+                    level=logging.WARNING)
 
-# Read configurations
+# variables
 API_ID = config("API_ID", default=None, cast=int)
 API_HASH = config("API_HASH", default=None)
 BOT_TOKEN = config("BOT_TOKEN", default=None)
 SESSION = config("SESSION", default=None)
+FORCESUB = config("FORCESUB", default=None)
+AUTH = config("AUTH", default=None, cast=int)
 
-# Start Pyrogram bot
-bot = Client("SaveRestrictedBot", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
+bot = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN) 
 
-# Start Telethon userbot
-userbot = TelegramClient("SaveRestrictedUserbot", session=SESSION, api_id=API_ID, api_hash=API_HASH)
+userbot = Client("saverestricted", session_string=SESSION, api_hash=API_HASH, api_id=API_ID) 
 
-# Define a flag to track if userbot started successfully
-userbot_started = False
+try:
+    userbot.start()
+except BaseException:
+    print("Userbot Error ! Have you added SESSION while deploying??")
+    sys.exit(1)
 
-async def main():
-    global userbot_started
-    try:
-        await bot.start()
-        await userbot.start()
-        userbot_started = True
-    except Exception as e:
-        logging.error(f"Error starting clients: {e}")
+Bot = Client(
+    "SaveRestricted",
+    bot_token=BOT_TOKEN,
+    api_id=int(API_ID),
+    api_hash=API_HASH
+)    
 
-# Run the main function
-if __name__ == "__main__":
-    bot.loop.run_until_complete(main())
-    if not userbot_started:
-        logging.error("Userbot failed to start! Please check your session configuration.")
+try:
+    Bot.start()
+except Exception as e:
+    print(e)
+    sys.exit(1)
